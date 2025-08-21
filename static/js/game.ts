@@ -1,37 +1,38 @@
-import { gameState, mouse } from './gameState.js';
-import { initRenderer, resizeCanvas, drawGame, drawMinimap, updateLeaderboard } from './renderer.js';
-import { updatePlayer, updateAI, initEntities, handlePlayerSplit } from './entities.js';
-import { handleFoodCollisions, handlePlayerAICollisions, handleAIAICollisions, respawnEntities } from './collisions.js';
-import { initUI } from './ui.js';
+import { gameState, mouse } from './gameState.ts';
+import { initRenderer, resizeCanvas, drawGame, drawMinimap, updateLeaderboard } from './renderer.ts';
+import { updatePlayer, updateAI, initEntities, handlePlayerSplit } from './entities.ts';
+import { handleFoodCollisions, handlePlayerAICollisions, handleAIAICollisions, respawnEntities } from './collisions.ts';
+import { initUI } from './ui.ts';
 
-function setupInputHandlers() {
-    const canvas = document.getElementById('gameCanvas');
+function setupInputHandlers(): void {
+    const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
     
-    // Mouse movement
-    canvas.addEventListener('mousemove', (e) => {
+    if (!canvas) {
+        throw new Error('Could not find gameCanvas element');
+    }
+    
+    canvas.addEventListener('mousemove', (e: MouseEvent) => {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
     });
 
-    // Mouse click for splitting
-    canvas.addEventListener('click', (e) => {
+    canvas.addEventListener('click', (e: MouseEvent) => {
         handlePlayerSplit();
     });
 
-    // Window resize
     window.addEventListener('resize', () => {
         resizeCanvas();
     });
 }
 
-function checkCollisions() {
+function checkCollisions(): void {
     handleFoodCollisions();
     handlePlayerAICollisions();
     handleAIAICollisions();
     respawnEntities();
 }
 
-function verifyGameState() {
+function verifyGameState(): void {
     console.log('Verifying game state...');
     console.log('Player cells:', gameState.playerCells);
     console.log('AI players:', gameState.aiPlayers);
@@ -48,7 +49,7 @@ function verifyGameState() {
     }
 }
 
-function gameLoop() {
+function gameLoop(): void {
     updatePlayer();
     updateAI();
     checkCollisions();
@@ -58,19 +59,24 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-async function initGame() {
+interface GameElements {
+    gameCanvas: HTMLCanvasElement;
+    minimapCanvas: HTMLCanvasElement;
+    scoreElement: HTMLElement;
+    leaderboardContent: HTMLElement;
+}
+
+async function initGame(): Promise<void> {
     try {
         console.log('Initializing game...');
         
-        // Get DOM elements
-        const elements = {
-            gameCanvas: document.getElementById('gameCanvas'),
-            minimapCanvas: document.getElementById('minimap'),
-            scoreElement: document.getElementById('score'),
-            leaderboardContent: document.getElementById('leaderboard-content')
+        const elements: GameElements = {
+            gameCanvas: document.getElementById('gameCanvas') as HTMLCanvasElement,
+            minimapCanvas: document.getElementById('minimap') as HTMLCanvasElement,
+            scoreElement: document.getElementById('score') as HTMLElement,
+            leaderboardContent: document.getElementById('leaderboard-content') as HTMLElement
         };
 
-        // Verify all elements are found
         Object.entries(elements).forEach(([key, element]) => {
             if (!element) {
                 throw new Error(`Could not find element: ${key}`);
@@ -79,7 +85,6 @@ async function initGame() {
 
         console.log('DOM elements found');
 
-        // Initialize game components in order
         initRenderer(elements);
         console.log('Renderer initialized');
         
@@ -92,10 +97,8 @@ async function initGame() {
         initUI();
         console.log('UI initialized');
 
-        // Verify game state
         verifyGameState();
 
-        // Start game loop
         console.log('Starting game loop');
         gameLoop();
     } catch (error) {
