@@ -1,6 +1,6 @@
-import { gameState, mouse } from './gameState.js';
-import { getSize, getRandomPosition, calculateCenterOfMass, getDistance } from './utils.js';
-import { PlayerCell } from './types.js';
+import { gameState, mouse } from './gameState';
+import { getSize, getRandomPosition, calculateCenterOfMass, getDistance } from './utils';
+import { PlayerCell } from './types';
 import { 
     WORLD_SIZE, 
     FOOD_COUNT, 
@@ -13,7 +13,7 @@ import {
     MERGE_DISTANCE,
     MERGE_FORCE,
     MERGE_START_FORCE
-} from './config.js';
+} from './config';
 
 const AI_NAMES = [
     'Cursor',

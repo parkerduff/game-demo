@@ -1,5 +1,5 @@
-import { WORLD_SIZE, STARTING_SCORE } from './config.js';
-import { GameState, Mouse } from './types.js';
+import { WORLD_SIZE, STARTING_SCORE } from './config';
+import { GameState, Mouse } from './types';
 
 export const gameState: GameState = {
     playerCells: [{

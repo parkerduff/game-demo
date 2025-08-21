@@ -1,7 +1,7 @@
-import { gameState } from './gameState.js';
-import { getSize, calculateCenterOfMass } from './utils.js';
-import { WORLD_SIZE, COLORS, FOOD_SIZE } from './config.js';
-import { DOMElements } from './types.js';
+import { gameState } from './gameState';
+import { getSize, calculateCenterOfMass } from './utils';
+import { WORLD_SIZE, COLORS, FOOD_SIZE } from './config';
+import { DOMElements } from './types';
 
 let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D | null, minimapCanvas: HTMLCanvasElement, minimapCtx: CanvasRenderingContext2D | null, scoreElement: HTMLElement, leaderboardContent: HTMLElement;
 

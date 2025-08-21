@@ -1,5 +1,5 @@
-import { WORLD_SIZE } from './config.js';
-import { Position, GameState, PlayerCell } from './types.js';
+import { WORLD_SIZE } from './config';
+import { Position, GameState, PlayerCell } from './types';
 
 export function getSize(score: number): number {
     return Math.sqrt(score) + 20;

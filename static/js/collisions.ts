@@ -1,7 +1,7 @@
-import { gameState } from './gameState.js';
-import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation } from './utils.js';
-import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE } from './config.js';
-import { respawnAI } from './entities.js';
+import { gameState } from './gameState';
+import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation } from './utils';
+import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE } from './config';
+import { respawnAI } from './entities';
 
 export function handleFoodCollisions(): void {
     // Player cells eating food

@@ -1,8 +1,8 @@
-import { gameState, mouse } from './gameState.js';
-import { initRenderer, resizeCanvas, drawGame, drawMinimap, updateLeaderboard } from './renderer.js';
-import { updatePlayer, updateAI, initEntities, handlePlayerSplit } from './entities.js';
-import { handleFoodCollisions, handlePlayerAICollisions, handleAIAICollisions, respawnEntities } from './collisions.js';
-import { initUI } from './ui.js';
+import { gameState, mouse } from './gameState';
+import { initRenderer, resizeCanvas, drawGame, drawMinimap, updateLeaderboard } from './renderer';
+import { updatePlayer, updateAI, initEntities, handlePlayerSplit } from './entities';
+import { handleFoodCollisions, handlePlayerAICollisions, handleAIAICollisions, respawnEntities } from './collisions';
+import { initUI } from './ui';
 
 function setupInputHandlers(): void {
     const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
