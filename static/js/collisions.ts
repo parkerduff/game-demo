@@ -1,13 +1,15 @@
 import { gameState } from './gameState.js';
 import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation } from './utils.js';
-import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE } from './config.js';
+import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE } from './config.js';
 import { respawnAI } from './entities.js';
-export function handleFoodCollisions() {
+
+export function handleFoodCollisions(): void {
     // Player cells eating food
     for (const playerCell of gameState.playerCells) {
         gameState.food = gameState.food.filter(food => {
             const distance = getDistance(playerCell, food);
             const playerSize = getSize(playerCell.score);
+
             if (distance < playerSize + FOOD_SIZE) {
                 playerCell.score += FOOD_SCORE;
                 return false;
@@ -15,11 +17,13 @@ export function handleFoodCollisions() {
             return true;
         });
     }
+
     // AI eating food
     for (const ai of gameState.aiPlayers) {
         gameState.food = gameState.food.filter(food => {
             const distance = getDistance(ai, food);
             const aiSize = getSize(ai.score);
+
             if (distance < aiSize + FOOD_SIZE) {
                 ai.score += FOOD_SCORE;
                 return false;
@@ -28,22 +32,24 @@ export function handleFoodCollisions() {
         });
     }
 }
-export function handlePlayerAICollisions() {
+
+export function handlePlayerAICollisions(): void {
     // Track changes to make after all collision checks
-    const aiIndicesToRemove = new Set();
-    const playerCellsToRemove = new Set();
-    const scoreGains = new Map(); // Map of cell index to score gain
+    const aiIndicesToRemove = new Set<number>();
+    const playerCellsToRemove = new Set<number>();
+    const scoreGains = new Map<number, number>(); // Map of cell index to score gain
+
     // Check each player cell against each AI
     gameState.playerCells.forEach((playerCell, playerCellIndex) => {
         gameState.aiPlayers.forEach((ai, aiIndex) => {
-            if (aiIndicesToRemove.has(aiIndex))
-                return;
-            if (playerCellsToRemove.has(playerCellIndex))
-                return;
+            if (aiIndicesToRemove.has(aiIndex)) return;
+            if (playerCellsToRemove.has(playerCellIndex)) return;
+
             const distance = getDistance(playerCell, ai);
             const playerSize = getSize(playerCell.score);
             const aiSize = getSize(ai.score);
             const minDistance = playerSize + aiSize;
+
             if (distance < minDistance) {
                 // Player cell is bigger
                 if (playerSize > aiSize * COLLISION_THRESHOLD) {
@@ -59,21 +65,25 @@ export function handlePlayerAICollisions() {
             }
         });
     });
+
     // Apply all changes after collision checks
     // Remove consumed AIs (in reverse order)
-    [...aiIndicesToRemove].sort((a, b) => b - a).forEach((index) => {
+    [...aiIndicesToRemove].sort((a: number, b: number) => b - a).forEach((index: number) => {
         gameState.aiPlayers.splice(index, 1);
     });
+
     // Apply score gains to surviving player cells
     scoreGains.forEach((gain, cellIndex) => {
         if (!playerCellsToRemove.has(cellIndex)) {
             gameState.playerCells[cellIndex].score += gain;
         }
     });
+
     // Remove consumed player cells (in reverse order)
-    [...playerCellsToRemove].sort((a, b) => b - a).forEach((index) => {
+    [...playerCellsToRemove].sort((a: number, b: number) => b - a).forEach((index: number) => {
         gameState.playerCells.splice(index, 1);
     });
+
     // Respawn player if all cells are gone
     if (gameState.playerCells.length === 0) {
         const safePos = findSafeSpawnLocation(gameState);
@@ -86,28 +96,31 @@ export function handlePlayerAICollisions() {
         });
     }
 }
-export function handleAIAICollisions() {
-    const aisToRemove = new Set();
-    const scoreGains = new Map(); // Map of AI index to score gain
+
+export function handleAIAICollisions(): void {
+    const aisToRemove = new Set<number>();
+    const scoreGains = new Map<number, number>(); // Map of AI index to score gain
+
     for (let i = 0; i < gameState.aiPlayers.length; i++) {
-        if (aisToRemove.has(i))
-            continue;
+        if (aisToRemove.has(i)) continue;
+
         for (let j = i + 1; j < gameState.aiPlayers.length; j++) {
-            if (aisToRemove.has(j))
-                continue;
+            if (aisToRemove.has(j)) continue;
+
             const ai1 = gameState.aiPlayers[i];
             const ai2 = gameState.aiPlayers[j];
+            
             const distance = getDistance(ai1, ai2);
             const ai1Size = getSize(ai1.score);
             const ai2Size = getSize(ai2.score);
             const minDistance = ai1Size + ai2Size;
+
             if (distance < minDistance) {
                 if (ai1Size > ai2Size * COLLISION_THRESHOLD) {
                     const currentGain = scoreGains.get(i) || 0;
                     scoreGains.set(i, currentGain + ai2.score + 100);
                     aisToRemove.add(j);
-                }
-                else if (ai2Size > ai1Size * COLLISION_THRESHOLD) {
+                } else if (ai2Size > ai1Size * COLLISION_THRESHOLD) {
                     const currentGain = scoreGains.get(j) || 0;
                     scoreGains.set(j, currentGain + ai1.score + 100);
                     aisToRemove.add(i);
@@ -116,18 +129,21 @@ export function handleAIAICollisions() {
             }
         }
     }
+
     // Apply score gains to surviving AIs
     scoreGains.forEach((gain, aiIndex) => {
         if (!aisToRemove.has(aiIndex)) {
             gameState.aiPlayers[aiIndex].score += gain;
         }
     });
+
     // Remove consumed AIs (in reverse order)
-    [...aisToRemove].sort((a, b) => b - a).forEach((index) => {
+    [...aisToRemove].sort((a: number, b: number) => b - a).forEach((index: number) => {
         gameState.aiPlayers.splice(index, 1);
     });
 }
-export function respawnEntities() {
+
+export function respawnEntities(): void {
     // Respawn food if needed
     while (gameState.food.length < FOOD_COUNT) {
         const pos = getRandomPosition();
@@ -137,6 +153,7 @@ export function respawnEntities() {
             color: `hsl(${Math.random() * 360}, 50%, 50%)`
         });
     }
+
     // Respawn AI players if needed
     while (gameState.aiPlayers.length < AI_COUNT) {
         const safePos = findSafeSpawnLocation(gameState);
@@ -145,6 +162,7 @@ export function respawnEntities() {
         newAI.y = safePos.y;
         gameState.aiPlayers.push(newAI);
     }
+
     // Ensure player has at least one cell
     if (gameState.playerCells.length === 0) {
         const safePos = findSafeSpawnLocation(gameState);
@@ -157,4 +175,3 @@ export function respawnEntities() {
         });
     }
 }
-//# sourceMappingURL=collisions.js.map
