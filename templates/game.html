@@ -238,7 +238,7 @@
             <div class="control-item">
                 <span>Dark Mode</span>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="dark-mode-toggle" onclick="toggleDarkMode()">
+                    <input type="checkbox" id="dark-mode-toggle">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
@@ -251,11 +251,6 @@
             </div>
         </div>
     </div>
-    <script>
-        function toggleDarkMode() {
-            document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? '' : 'dark');
-        }
-    </script>
     <script type="module" src="{{ url_for('static', filename='js/game.js') }}"></script>
 </body>
 </html>
