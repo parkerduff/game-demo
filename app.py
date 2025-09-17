@@ -5,7 +5,7 @@ import json
 app = Flask(__name__)
 
 # Game state
-WORLD_SIZE = 2000
+WORLD_SIZE = 8000
 NUM_AI_PLAYERS = 10
 NUM_FOOD = 100
 
@@ -25,4 +25,4 @@ def update_player():
     return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
