@@ -1,6 +1,6 @@
 import { gameState } from './gameState.js';
 import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation } from './utils.js';
-import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE } from './config.js';
+import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE, VICTORY_SCORE } from './config.js';
 import { respawnAI } from './entities.js';
 
 export function handleFoodCollisions() {
@@ -12,6 +12,11 @@ export function handleFoodCollisions() {
 
             if (distance < playerSize + FOOD_SIZE) {
                 playerCell.score += FOOD_SCORE;
+                
+                if (playerCell.score >= VICTORY_SCORE && !gameState.gameWon) {
+                    gameState.gameWon = true;
+                }
+                
                 return false;
             }
             return true;
@@ -76,6 +81,11 @@ export function handlePlayerAICollisions() {
     scoreGains.forEach((gain, cellIndex) => {
         if (!playerCellsToRemove.has(cellIndex)) {
             gameState.playerCells[cellIndex].score += gain;
+            
+            // Check for victory condition after score gain
+            if (gameState.playerCells[cellIndex].score >= VICTORY_SCORE && !gameState.gameWon) {
+                gameState.gameWon = true;
+            }
         }
     });
 
@@ -84,8 +94,8 @@ export function handlePlayerAICollisions() {
         gameState.playerCells.splice(index, 1);
     });
 
-    // Respawn player if all cells are gone
-    if (gameState.playerCells.length === 0) {
+    // Respawn player if all cells are gone (but not if game is won)
+    if (gameState.playerCells.length === 0 && !gameState.gameWon) {
         const safePos = findSafeSpawnLocation(gameState);
         gameState.playerCells.push({
             x: safePos.x,
@@ -163,8 +173,8 @@ export function respawnEntities() {
         gameState.aiPlayers.push(newAI);
     }
 
-    // Ensure player has at least one cell
-    if (gameState.playerCells.length === 0) {
+    // Ensure player has at least one cell (but not if game is won)
+    if (gameState.playerCells.length === 0 && !gameState.gameWon) {
         const safePos = findSafeSpawnLocation(gameState);
         gameState.playerCells.push({
             x: safePos.x,

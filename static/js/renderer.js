@@ -106,7 +106,35 @@ export function drawGame() {
     });
 
     // Update score display
-    scoreElement.textContent = `Score: ${Math.floor(gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0))}`;
+    const totalScore = Math.floor(gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0));
+    scoreElement.textContent = `Score: ${totalScore}`;
+    
+    if (gameState.gameWon) {
+        ctx.save();
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'bold 48px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 3;
+        
+        const victoryText = 'VICTORY!';
+        const scoreText = `Final Score: ${totalScore}`;
+        
+        ctx.strokeText(victoryText, canvas.width / 2, canvas.height / 2 - 30);
+        ctx.fillText(victoryText, canvas.width / 2, canvas.height / 2 - 30);
+        
+        ctx.font = 'bold 24px Arial';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeText(scoreText, canvas.width / 2, canvas.height / 2 + 20);
+        ctx.fillText(scoreText, canvas.width / 2, canvas.height / 2 + 20);
+        
+        ctx.restore();
+    }
 }
 
 export function drawMinimap() {

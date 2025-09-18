@@ -49,13 +49,19 @@ function verifyGameState() {
 }
 
 function gameLoop() {
-    updatePlayer();
-    updateAI();
-    checkCollisions();
+    if (!gameState.gameWon) {
+        updatePlayer();
+        updateAI();
+        checkCollisions();
+    }
+    
     updateLeaderboard();
     drawGame();
     drawMinimap();
-    requestAnimationFrame(gameLoop);
+    
+    if (!gameState.gameWon) {
+        requestAnimationFrame(gameLoop);
+    }
 }
 
 async function initGame() {
