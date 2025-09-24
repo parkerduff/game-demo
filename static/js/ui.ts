@@ -1,40 +1,47 @@
-function loadDarkMode() {
+function loadDarkMode(): void {
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
     document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : '');
-    const toggle = document.getElementById('dark-mode-toggle');
+    const toggle = document.getElementById('dark-mode-toggle') as HTMLInputElement;
     if (toggle) {
         toggle.checked = isDarkMode;
     }
 }
-function saveDarkMode(isDarkMode) {
+
+function saveDarkMode(isDarkMode: boolean): void {
     localStorage.setItem('darkMode', isDarkMode.toString());
 }
-export function initUI() {
+
+export function initUI(): void {
     const settingsIcon = document.getElementById('settings-icon');
     const settingsPanel = document.getElementById('settings-panel');
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const darkModeToggle = document.getElementById('dark-mode-toggle') as HTMLInputElement;
+
     if (!settingsIcon || !settingsPanel || !darkModeToggle) {
         console.error('UI elements not found');
         return;
     }
+
     loadDarkMode();
-    settingsIcon.addEventListener('click', (e) => {
+
+    settingsIcon.addEventListener('click', (e: MouseEvent) => {
         e.stopPropagation();
         settingsPanel.classList.toggle('visible');
     });
-    document.addEventListener('click', (e) => {
-        if (!settingsPanel.contains(e.target) && settingsPanel.classList.contains('visible')) {
+
+    document.addEventListener('click', (e: MouseEvent) => {
+        if (!settingsPanel.contains(e.target as Node) && settingsPanel.classList.contains('visible')) {
             settingsPanel.classList.remove('visible');
         }
     });
-    settingsPanel.addEventListener('click', (e) => {
+
+    settingsPanel.addEventListener('click', (e: MouseEvent) => {
         e.stopPropagation();
     });
-    darkModeToggle.addEventListener('change', (e) => {
-        const target = e.target;
+
+    darkModeToggle.addEventListener('change', (e: Event) => {
+        const target = e.target as HTMLInputElement;
         const isDarkMode = target.checked;
         document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : '');
         saveDarkMode(isDarkMode);
     });
 }
-//# sourceMappingURL=ui.js.map
