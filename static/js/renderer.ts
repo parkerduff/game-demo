@@ -1,27 +1,31 @@
 import { gameState } from './gameState.js';
 import { getSize, calculateCenterOfMass } from './utils.js';
 import { WORLD_SIZE, COLORS, FOOD_SIZE } from './config.js';
+import { CanvasElements, LeaderboardPlayer } from './types.js';
 
-let canvas, ctx, minimapCanvas, minimapCtx, scoreElement, leaderboardContent;
+let canvas: HTMLCanvasElement | null, ctx: CanvasRenderingContext2D | null;
+let minimapCanvas: HTMLCanvasElement | null, minimapCtx: CanvasRenderingContext2D | null;
+let scoreElement: HTMLElement | null, leaderboardContent: HTMLElement | null;
 
-export function initRenderer(canvasElements) {
+export function initRenderer(canvasElements: CanvasElements): void {
     canvas = canvasElements.gameCanvas;
-    ctx = canvas.getContext('2d');
+    ctx = canvas ? canvas.getContext('2d') : null;
     minimapCanvas = canvasElements.minimapCanvas;
-    minimapCtx = minimapCanvas.getContext('2d');
+    minimapCtx = minimapCanvas ? minimapCanvas.getContext('2d') : null;
     scoreElement = canvasElements.scoreElement;
     leaderboardContent = canvasElements.leaderboardContent;
 
-    // Initial canvas setup
     resizeCanvas();
 }
 
-export function resizeCanvas() {
+export function resizeCanvas(): void {
+    if (!canvas) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
 
-function drawCircle(x, y, value, color, isFood) {
+function drawCircle(x: number, y: number, value: number, color: string, isFood: boolean): void {
+    if (!ctx) return;
     const size = isFood ? value : getSize(value);
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
@@ -29,20 +33,18 @@ function drawCircle(x, y, value, color, isFood) {
     ctx.fill();
 }
 
-function drawCellWithName(x, y, score, color, name) {
+function drawCellWithName(x: number, y: number, score: number, color: string, name: string): void {
+    if (!ctx) return;
     const size = getSize(score);
     
-    // Draw cell
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
 
-    // Draw name
-    if (size > 20) {  // Only draw name if cell is big enough
+    if (size > 20) {
         ctx.save();
         
-        // Calculate font size based on cell size
         const fontSize = Math.max(12, Math.min(20, size / 2));
         ctx.font = `bold ${fontSize}px Arial`;
         ctx.fillStyle = 'white';
@@ -51,66 +53,64 @@ function drawCellWithName(x, y, score, color, name) {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        // Draw text stroke (outline)
         ctx.strokeText(name, x, y);
-        // Draw text fill
         ctx.fillText(name, x, y);
         
         ctx.restore();
     }
 }
 
-export function drawGame() {
-    if (!ctx) return;
+export function drawGame(): void {
+    if (!ctx || !canvas) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Update camera to follow player's center of mass
     const centerOfMass = calculateCenterOfMass(gameState.playerCells);
     gameState.camera.x = centerOfMass.x - canvas.width / 2;
     gameState.camera.y = centerOfMass.y - canvas.height / 2;
 
-    // Draw food
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
     gameState.food.forEach(food => {
         const screenX = food.x - gameState.camera.x;
         const screenY = food.y - gameState.camera.y;
         
-        if (screenX >= -FOOD_SIZE && screenX <= canvas.width + FOOD_SIZE &&
-            screenY >= -FOOD_SIZE && screenY <= canvas.height + FOOD_SIZE) {
+        if (screenX >= -FOOD_SIZE && screenX <= canvasWidth + FOOD_SIZE &&
+            screenY >= -FOOD_SIZE && screenY <= canvasHeight + FOOD_SIZE) {
             drawCircle(screenX, screenY, FOOD_SIZE, food.color, true);
         }
     });
 
-    // Draw AI players
     gameState.aiPlayers.forEach(ai => {
         const screenX = ai.x - gameState.camera.x;
         const screenY = ai.y - gameState.camera.y;
         const size = getSize(ai.score);
         
-        if (screenX >= -size && screenX <= canvas.width + size &&
-            screenY >= -size && screenY <= canvas.height + size) {
+        if (screenX >= -size && screenX <= canvasWidth + size &&
+            screenY >= -size && screenY <= canvasHeight + size) {
             drawCellWithName(screenX, screenY, ai.score, ai.color, ai.name);
         }
     });
 
-    // Draw player cells
     gameState.playerCells.forEach(cell => {
         const screenX = cell.x - gameState.camera.x;
         const screenY = cell.y - gameState.camera.y;
         const size = getSize(cell.score);
         
-        if (screenX >= -size && screenX <= canvas.width + size &&
-            screenY >= -size && screenY <= canvas.height + size) {
+        if (screenX >= -size && screenX <= canvasWidth + size &&
+            screenY >= -size && screenY <= canvasHeight + size) {
             drawCellWithName(screenX, screenY, cell.score, COLORS.PLAYER, gameState.playerName);
         }
     });
 
-    // Update score display
-    scoreElement.textContent = `Score: ${Math.floor(gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0))}`;
+    if (scoreElement) {
+        scoreElement.textContent = `Score: ${Math.floor(gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0))}`;
+    }
 }
 
-export function drawMinimap() {
-    if (!minimapCtx) return;
+export function drawMinimap(): void {
+    if (!minimapCtx || !minimapCanvas || !canvas) return;
 
     const MINIMAP_SIZE = 150;
     const scale = MINIMAP_SIZE / WORLD_SIZE;
@@ -125,42 +125,41 @@ export function drawMinimap() {
     minimapCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
     minimapCtx.strokeRect(viewX, viewY, viewWidth, viewHeight);
 
-    // Draw AI players on minimap
+    const ctx = minimapCtx;
+
     gameState.aiPlayers.forEach(ai => {
-        minimapCtx.beginPath();
-        minimapCtx.arc(
+        ctx.beginPath();
+        ctx.arc(
             ai.x * scale,
             ai.y * scale,
             2,
             0,
             Math.PI * 2
         );
-        minimapCtx.fillStyle = COLORS.MINIMAP.OTHER;
-        minimapCtx.fill();
+        ctx.fillStyle = COLORS.MINIMAP.OTHER;
+        ctx.fill();
     });
 
-    // Draw player cells on minimap
     gameState.playerCells.forEach(cell => {
-        minimapCtx.beginPath();
-        minimapCtx.arc(
+        ctx.beginPath();
+        ctx.arc(
             cell.x * scale,
             cell.y * scale,
             3,
             0,
             Math.PI * 2
         );
-        minimapCtx.fillStyle = COLORS.MINIMAP.PLAYER;
-        minimapCtx.fill();
+        ctx.fillStyle = COLORS.MINIMAP.PLAYER;
+        ctx.fill();
     });
 }
 
-export function updateLeaderboard() {
+export function updateLeaderboard(): void {
     if (!leaderboardContent) return;
 
     const playerTotalScore = gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0);
     
-    // Combine player score with AI scores
-    const allPlayers = [
+    const allPlayers: LeaderboardPlayer[] = [
         { 
             name: gameState.playerName,
             score: playerTotalScore,
