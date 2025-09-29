@@ -1,0 +1,117 @@
+import { WORLD_SIZE } from './config';
+
+export interface Position {
+    x: number;
+    y: number;
+}
+
+export interface Food extends Position {
+    color: string;
+}
+
+export interface PlayerCell extends Position {
+    score: number;
+    velocityX: number;
+    velocityY: number;
+    splitTime?: number;
+}
+
+export interface AIPlayer extends Position {
+    score: number;
+    color: string;
+    direction: number;
+    name: string;
+}
+
+export interface Camera extends Position {}
+
+export interface Mouse extends Position {}
+
+export interface GameState {
+    playerCells: PlayerCell[];
+    playerName: string;
+    camera: Camera;
+    food: Food[];
+    aiPlayers: AIPlayer[];
+}
+
+export function getSize(score: number): number {
+    return Math.sqrt(score) + 20;
+}
+
+export function getRandomPosition(): Position {
+    return {
+        x: Math.random() * WORLD_SIZE,
+        y: Math.random() * WORLD_SIZE
+    };
+}
+
+export function getDistance(obj1: Position, obj2: Position): number {
+    const dx = obj1.x - obj2.x;
+    const dy = obj1.y - obj2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+export function calculateCenterOfMass(cells: PlayerCell[]): Position {
+    const totalScore = cells.reduce((sum, cell) => sum + cell.score, 0);
+    if (totalScore === 0) return { x: 0, y: 0 };
+    
+    return {
+        x: cells.reduce((sum, cell) => sum + cell.x * cell.score, 0) / totalScore,
+        y: cells.reduce((sum, cell) => sum + cell.y * cell.score, 0) / totalScore
+    };
+}
+
+export function findSafeSpawnLocation(gameState: GameState, minDistance: number = 100): Position {
+    const maxAttempts = 50;
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+        const pos = getRandomPosition();
+        let isSafe = true;
+
+        for (const ai of gameState.aiPlayers) {
+            const distance = getDistance(pos, ai);
+            const safeDistance = getSize(ai.score) + minDistance;
+            if (distance < safeDistance) {
+                isSafe = false;
+                break;
+            }
+        }
+
+        for (const cell of gameState.playerCells) {
+            const distance = getDistance(pos, cell);
+            const safeDistance = getSize(cell.score) + minDistance;
+            if (distance < safeDistance) {
+                isSafe = false;
+                break;
+            }
+        }
+
+        if (isSafe) {
+            return pos;
+        }
+
+        attempts++;
+    }
+
+    let bestPos = getRandomPosition();
+    let maxMinDistance = 0;
+
+    for (let i = 0; i < 20; i++) {
+        const pos = getRandomPosition();
+        let minDistanceToPlayer = Infinity;
+
+        [...gameState.aiPlayers, ...gameState.playerCells].forEach((entity: Position) => {
+            const distance = getDistance(pos, entity);
+            minDistanceToPlayer = Math.min(minDistanceToPlayer, distance);
+        });
+
+        if (minDistanceToPlayer > maxMinDistance) {
+            maxMinDistance = minDistanceToPlayer;
+            bestPos = pos;
+        }
+    }
+
+    return bestPos;
+}
