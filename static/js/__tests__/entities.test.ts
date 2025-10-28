@@ -1,9 +1,8 @@
-import { splitPlayerCell, handlePlayerSplit, updatePlayer } from '../entities.js';
-import { gameState, mouse } from '../gameState.js';
-import { MIN_SPLIT_SCORE, MAX_PLAYER_CELLS } from '../config.js';
+import { splitPlayerCell, handlePlayerSplit, updatePlayer } from '../entities';
+import { gameState, mouse } from '../gameState';
+import { MIN_SPLIT_SCORE, MAX_PLAYER_CELLS } from '../config';
 
-// Mock gameState and mouse
-jest.mock('../gameState.js', () => ({
+jest.mock('../gameState', () => ({
   gameState: {
     playerCells: []
   },
@@ -16,7 +15,7 @@ describe('splitPlayerCell', () => {
   });
 
   test('does not split cell below minimum score', () => {
-    const cell = { x: 100, y: 100, score: MIN_SPLIT_SCORE - 1 };
+    const cell = { x: 100, y: 100, score: MIN_SPLIT_SCORE - 1, velocityX: 0, velocityY: 0 };
     gameState.playerCells = [cell];
 
     splitPlayerCell(cell);
@@ -26,7 +25,7 @@ describe('splitPlayerCell', () => {
   });
 
   test('splits cell with sufficient score', () => {
-    const cell = { x: 100, y: 100, score: 100 };
+    const cell = { x: 100, y: 100, score: 100, velocityX: 0, velocityY: 0 };
     gameState.playerCells = [cell];
 
     splitPlayerCell(cell);
@@ -37,7 +36,7 @@ describe('splitPlayerCell', () => {
   });
 
   test('does not split when at max cells', () => {
-    const cell = { x: 100, y: 100, score: 100 };
+    const cell = { x: 100, y: 100, score: 100, velocityX: 0, velocityY: 0 };
     gameState.playerCells = Array(MAX_PLAYER_CELLS).fill({ ...cell });
 
     splitPlayerCell(cell);
@@ -53,9 +52,9 @@ describe('handlePlayerSplit', () => {
 
   test('splits all eligible cells', () => {
     gameState.playerCells = [
-      { x: 100, y: 100, score: 100 },
-      { x: 200, y: 200, score: MIN_SPLIT_SCORE - 1 },
-      { x: 300, y: 300, score: 100 }
+      { x: 100, y: 100, score: 100, velocityX: 0, velocityY: 0 },
+      { x: 200, y: 200, score: MIN_SPLIT_SCORE - 1, velocityX: 0, velocityY: 0 },
+      { x: 300, y: 300, score: 100, velocityX: 0, velocityY: 0 }
     ];
 
     handlePlayerSplit();

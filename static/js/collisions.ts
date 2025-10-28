@@ -1,9 +1,9 @@
-import { gameState } from './gameState.js';
-import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation } from './utils.js';
-import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE } from './config.js';
-import { respawnAI } from './entities.js';
+import { gameState } from './gameState';
+import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation } from './utils';
+import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE } from './config';
+import { respawnAI } from './entities';
 
-export function handleFoodCollisions() {
+export function handleFoodCollisions(): void {
     // Player cells eating food
     for (const playerCell of gameState.playerCells) {
         gameState.food = gameState.food.filter(food => {
@@ -33,11 +33,10 @@ export function handleFoodCollisions() {
     }
 }
 
-export function handlePlayerAICollisions() {
-    // Track changes to make after all collision checks
-    const aiIndicesToRemove = new Set();
-    const playerCellsToRemove = new Set();
-    const scoreGains = new Map(); // Map of cell index to score gain
+export function handlePlayerAICollisions(): void {
+    const aiIndicesToRemove = new Set<number>();
+    const playerCellsToRemove = new Set<number>();
+    const scoreGains = new Map<number, number>();
 
     // Check each player cell against each AI
     gameState.playerCells.forEach((playerCell, playerCellIndex) => {
@@ -97,9 +96,9 @@ export function handlePlayerAICollisions() {
     }
 }
 
-export function handleAIAICollisions() {
-    const aisToRemove = new Set();
-    const scoreGains = new Map(); // Map of AI index to score gain
+export function handleAIAICollisions(): void {
+    const aisToRemove = new Set<number>();
+    const scoreGains = new Map<number, number>();
 
     for (let i = 0; i < gameState.aiPlayers.length; i++) {
         if (aisToRemove.has(i)) continue;
@@ -143,7 +142,7 @@ export function handleAIAICollisions() {
     });
 }
 
-export function respawnEntities() {
+export function respawnEntities(): void {
     // Respawn food if needed
     while (gameState.food.length < FOOD_COUNT) {
         const pos = getRandomPosition();

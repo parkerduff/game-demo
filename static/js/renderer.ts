@@ -1,27 +1,36 @@
-import { gameState } from './gameState.js';
-import { getSize, calculateCenterOfMass } from './utils.js';
-import { WORLD_SIZE, COLORS, FOOD_SIZE } from './config.js';
+import { gameState } from './gameState';
+import { getSize, calculateCenterOfMass } from './utils';
+import { WORLD_SIZE, COLORS, FOOD_SIZE } from './config';
 
-let canvas, ctx, minimapCanvas, minimapCtx, scoreElement, leaderboardContent;
+let canvas: HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D;
+let minimapCanvas: HTMLCanvasElement;
+let minimapCtx: CanvasRenderingContext2D;
+let scoreElement: HTMLElement;
+let leaderboardContent: HTMLElement;
 
-export function initRenderer(canvasElements) {
+export function initRenderer(canvasElements: {
+    gameCanvas: HTMLCanvasElement;
+    minimapCanvas: HTMLCanvasElement;
+    scoreElement: HTMLElement;
+    leaderboardContent: HTMLElement;
+}): void {
     canvas = canvasElements.gameCanvas;
-    ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d')!;
     minimapCanvas = canvasElements.minimapCanvas;
-    minimapCtx = minimapCanvas.getContext('2d');
+    minimapCtx = minimapCanvas.getContext('2d')!;
     scoreElement = canvasElements.scoreElement;
     leaderboardContent = canvasElements.leaderboardContent;
 
-    // Initial canvas setup
     resizeCanvas();
 }
 
-export function resizeCanvas() {
+export function resizeCanvas(): void {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
 
-function drawCircle(x, y, value, color, isFood) {
+function drawCircle(x: number, y: number, value: number, color: string, isFood: boolean): void {
     const size = isFood ? value : getSize(value);
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
@@ -29,7 +38,7 @@ function drawCircle(x, y, value, color, isFood) {
     ctx.fill();
 }
 
-function drawCellWithName(x, y, score, color, name) {
+function drawCellWithName(x: number, y: number, score: number, color: string, name: string): void {
     const size = getSize(score);
     
     // Draw cell
@@ -60,7 +69,7 @@ function drawCellWithName(x, y, score, color, name) {
     }
 }
 
-export function drawGame() {
+export function drawGame(): void {
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -109,7 +118,7 @@ export function drawGame() {
     scoreElement.textContent = `Score: ${Math.floor(gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0))}`;
 }
 
-export function drawMinimap() {
+export function drawMinimap(): void {
     if (!minimapCtx) return;
 
     const MINIMAP_SIZE = 150;
@@ -154,7 +163,7 @@ export function drawMinimap() {
     });
 }
 
-export function updateLeaderboard() {
+export function updateLeaderboard(): void {
     if (!leaderboardContent) return;
 
     const playerTotalScore = gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0);

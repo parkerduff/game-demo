@@ -1,5 +1,5 @@
-import { gameState, mouse } from './gameState.js';
-import { getSize, getRandomPosition, calculateCenterOfMass, getDistance } from './utils.js';
+import { gameState, mouse } from './gameState';
+import { getSize, getRandomPosition, calculateCenterOfMass, getDistance } from './utils';
 import { 
     WORLD_SIZE, 
     FOOD_COUNT, 
@@ -12,7 +12,8 @@ import {
     MERGE_DISTANCE,
     MERGE_FORCE,
     MERGE_START_FORCE
-} from './config.js';
+} from './config';
+import type { PlayerCell, AIPlayer } from './types';
 
 const AI_NAMES = [
     'Cursor',
@@ -27,15 +28,14 @@ const AI_NAMES = [
     'Emacs'
 ];
 
-// Function to get an unused AI name
-function getUnusedAIName() {
+function getUnusedAIName(): string {
     const usedNames = new Set(gameState.aiPlayers.map(ai => ai.name));
     return AI_NAMES.find(name => !usedNames.has(name)) || AI_NAMES[0];
 }
 
-function updateCellMerging() {
+function updateCellMerging(): void {
     const now = Date.now();
-    const cellsToMerge = [];
+    const cellsToMerge: number[] = [];
 
     // First pass: calculate merging forces and identify mergeable cells
     for (let i = 0; i < gameState.playerCells.length; i++) {
@@ -117,8 +117,8 @@ function updateCellMerging() {
         const uniqueIndices = [...new Set(cellsToMerge)];
         
         // Group cells to merge
-        const groups = [];
-        let currentGroup = [uniqueIndices[0]];
+        const groups: number[][] = [];
+        let currentGroup: number[] = [uniqueIndices[0]];
         
         for (let i = 1; i < uniqueIndices.length; i++) {
             const current = uniqueIndices[i];
@@ -164,7 +164,7 @@ function updateCellMerging() {
     }
 }
 
-export function updatePlayer() {
+export function updatePlayer(): void {
     const dx = mouse.x - window.innerWidth / 2;
     const dy = mouse.y - window.innerHeight / 2;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -194,7 +194,7 @@ export function updatePlayer() {
     updateCellMerging();
 }
 
-export function splitPlayerCell(cell) {
+export function splitPlayerCell(cell: PlayerCell): void {
     if (cell.score < MIN_SPLIT_SCORE || 
         gameState.playerCells.length >= MAX_PLAYER_CELLS) {
         return;
@@ -234,7 +234,7 @@ export function splitPlayerCell(cell) {
     gameState.playerCells.push(newCell);
 }
 
-export function handlePlayerSplit() {
+export function handlePlayerSplit(): void {
     // Split each cell that's large enough
     const cellsToSplit = gameState.playerCells.filter(cell => 
         cell.score >= MIN_SPLIT_SCORE && 
@@ -244,7 +244,7 @@ export function handlePlayerSplit() {
     cellsToSplit.forEach(cell => splitPlayerCell(cell));
 }
 
-export function updateAI() {
+export function updateAI(): void {
     gameState.aiPlayers.forEach(ai => {
         if (Math.random() < 0.02) {
             ai.direction = Math.random() * Math.PI * 2;
@@ -259,7 +259,7 @@ export function updateAI() {
     });
 }
 
-export function initEntities() {
+export function initEntities(): void {
     // Clear existing entities
     gameState.food = [];
     gameState.aiPlayers = [];
@@ -297,8 +297,7 @@ export function initEntities() {
     });
 }
 
-// Export for use in other modules
-export function respawnAI() {
+export function respawnAI(): AIPlayer {
     const pos = getRandomPosition();
     const name = getUnusedAIName();
     
