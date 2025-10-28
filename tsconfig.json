@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": false,
+    "outDir": "./static/js/dist",
+    "rootDir": "./static/js",
+    "lib": ["ES2020", "DOM"],
+    "noEmit": false
+  },
+  "include": [
+    "static/js/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "static/js/**/*.test.ts"
+  ]
+}
