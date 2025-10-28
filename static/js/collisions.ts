@@ -1,12 +1,11 @@
-import { gameState } from './gameState.js';
-import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation } from './utils.js';
-import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE } from './config.js';
-import { respawnAI } from './entities.js';
+import { gameState, PlayerCell, AIPlayer, Food } from './gameState.ts';
+import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation } from './utils.ts';
+import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE } from './config.ts';
+import { respawnAI } from './entities.ts';
 
-export function handleFoodCollisions() {
-    // Player cells eating food
+export function handleFoodCollisions(): void {
     for (const playerCell of gameState.playerCells) {
-        gameState.food = gameState.food.filter(food => {
+        gameState.food = gameState.food.filter((food: Food) => {
             const distance = getDistance(playerCell, food);
             const playerSize = getSize(playerCell.score);
 
@@ -18,9 +17,8 @@ export function handleFoodCollisions() {
         });
     }
 
-    // AI eating food
     for (const ai of gameState.aiPlayers) {
-        gameState.food = gameState.food.filter(food => {
+        gameState.food = gameState.food.filter((food: Food) => {
             const distance = getDistance(ai, food);
             const aiSize = getSize(ai.score);
 
@@ -33,15 +31,13 @@ export function handleFoodCollisions() {
     }
 }
 
-export function handlePlayerAICollisions() {
-    // Track changes to make after all collision checks
-    const aiIndicesToRemove = new Set();
-    const playerCellsToRemove = new Set();
-    const scoreGains = new Map(); // Map of cell index to score gain
+export function handlePlayerAICollisions(): void {
+    const aiIndicesToRemove = new Set<number>();
+    const playerCellsToRemove = new Set<number>();
+    const scoreGains = new Map<number, number>();
 
-    // Check each player cell against each AI
-    gameState.playerCells.forEach((playerCell, playerCellIndex) => {
-        gameState.aiPlayers.forEach((ai, aiIndex) => {
+    gameState.playerCells.forEach((playerCell: PlayerCell, playerCellIndex: number) => {
+        gameState.aiPlayers.forEach((ai: AIPlayer, aiIndex: number) => {
             if (aiIndicesToRemove.has(aiIndex)) return;
             if (playerCellsToRemove.has(playerCellIndex)) return;
 
@@ -51,13 +47,11 @@ export function handlePlayerAICollisions() {
             const minDistance = playerSize + aiSize;
 
             if (distance < minDistance) {
-                // Player cell is bigger
                 if (playerSize > aiSize * COLLISION_THRESHOLD) {
                     const currentGain = scoreGains.get(playerCellIndex) || 0;
                     scoreGains.set(playerCellIndex, currentGain + ai.score + 100);
                     aiIndicesToRemove.add(aiIndex);
                 }
-                // AI is bigger
                 else if (aiSize > playerSize * COLLISION_THRESHOLD) {
                     ai.score += playerCell.score + 100;
                     playerCellsToRemove.add(playerCellIndex);
@@ -66,25 +60,20 @@ export function handlePlayerAICollisions() {
         });
     });
 
-    // Apply all changes after collision checks
-    // Remove consumed AIs (in reverse order)
-    [...aiIndicesToRemove].sort((a, b) => b - a).forEach(index => {
+    [...aiIndicesToRemove].sort((a, b) => b - a).forEach((index: number) => {
         gameState.aiPlayers.splice(index, 1);
     });
 
-    // Apply score gains to surviving player cells
-    scoreGains.forEach((gain, cellIndex) => {
+    scoreGains.forEach((gain: number, cellIndex: number) => {
         if (!playerCellsToRemove.has(cellIndex)) {
             gameState.playerCells[cellIndex].score += gain;
         }
     });
 
-    // Remove consumed player cells (in reverse order)
-    [...playerCellsToRemove].sort((a, b) => b - a).forEach(index => {
+    [...playerCellsToRemove].sort((a, b) => b - a).forEach((index: number) => {
         gameState.playerCells.splice(index, 1);
     });
 
-    // Respawn player if all cells are gone
     if (gameState.playerCells.length === 0) {
         const safePos = findSafeSpawnLocation(gameState);
         gameState.playerCells.push({
@@ -97,9 +86,9 @@ export function handlePlayerAICollisions() {
     }
 }
 
-export function handleAIAICollisions() {
-    const aisToRemove = new Set();
-    const scoreGains = new Map(); // Map of AI index to score gain
+export function handleAIAICollisions(): void {
+    const aisToRemove = new Set<number>();
+    const scoreGains = new Map<number, number>();
 
     for (let i = 0; i < gameState.aiPlayers.length; i++) {
         if (aisToRemove.has(i)) continue;
@@ -130,21 +119,18 @@ export function handleAIAICollisions() {
         }
     }
 
-    // Apply score gains to surviving AIs
-    scoreGains.forEach((gain, aiIndex) => {
+    scoreGains.forEach((gain: number, aiIndex: number) => {
         if (!aisToRemove.has(aiIndex)) {
             gameState.aiPlayers[aiIndex].score += gain;
         }
     });
 
-    // Remove consumed AIs (in reverse order)
-    [...aisToRemove].sort((a, b) => b - a).forEach(index => {
+    [...aisToRemove].sort((a, b) => b - a).forEach((index: number) => {
         gameState.aiPlayers.splice(index, 1);
     });
 }
 
-export function respawnEntities() {
-    // Respawn food if needed
+export function respawnEntities(): void {
     while (gameState.food.length < FOOD_COUNT) {
         const pos = getRandomPosition();
         gameState.food.push({
@@ -154,7 +140,6 @@ export function respawnEntities() {
         });
     }
 
-    // Respawn AI players if needed
     while (gameState.aiPlayers.length < AI_COUNT) {
         const safePos = findSafeSpawnLocation(gameState);
         const newAI = respawnAI();
@@ -163,7 +148,6 @@ export function respawnEntities() {
         gameState.aiPlayers.push(newAI);
     }
 
-    // Ensure player has at least one cell
     if (gameState.playerCells.length === 0) {
         const safePos = findSafeSpawnLocation(gameState);
         gameState.playerCells.push({

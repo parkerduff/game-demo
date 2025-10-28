@@ -1,27 +1,38 @@
-import { gameState } from './gameState.js';
-import { getSize, calculateCenterOfMass } from './utils.js';
-import { WORLD_SIZE, COLORS, FOOD_SIZE } from './config.js';
+import { gameState, PlayerCell, AIPlayer, Food } from './gameState.ts';
+import { getSize, calculateCenterOfMass } from './utils.ts';
+import { WORLD_SIZE, COLORS, FOOD_SIZE } from './config.ts';
 
-let canvas, ctx, minimapCanvas, minimapCtx, scoreElement, leaderboardContent;
+let canvas: HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D;
+let minimapCanvas: HTMLCanvasElement;
+let minimapCtx: CanvasRenderingContext2D;
+let scoreElement: HTMLElement;
+let leaderboardContent: HTMLElement;
 
-export function initRenderer(canvasElements) {
+interface CanvasElements {
+    gameCanvas: HTMLCanvasElement;
+    minimapCanvas: HTMLCanvasElement;
+    scoreElement: HTMLElement;
+    leaderboardContent: HTMLElement;
+}
+
+export function initRenderer(canvasElements: CanvasElements): void {
     canvas = canvasElements.gameCanvas;
-    ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d')!;
     minimapCanvas = canvasElements.minimapCanvas;
-    minimapCtx = minimapCanvas.getContext('2d');
+    minimapCtx = minimapCanvas.getContext('2d')!;
     scoreElement = canvasElements.scoreElement;
     leaderboardContent = canvasElements.leaderboardContent;
 
-    // Initial canvas setup
     resizeCanvas();
 }
 
-export function resizeCanvas() {
+export function resizeCanvas(): void {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
 
-function drawCircle(x, y, value, color, isFood) {
+function drawCircle(x: number, y: number, value: number, color: string, isFood: boolean): void {
     const size = isFood ? value : getSize(value);
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
@@ -29,20 +40,17 @@ function drawCircle(x, y, value, color, isFood) {
     ctx.fill();
 }
 
-function drawCellWithName(x, y, score, color, name) {
+function drawCellWithName(x: number, y: number, score: number, color: string, name: string): void {
     const size = getSize(score);
     
-    // Draw cell
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
 
-    // Draw name
-    if (size > 20) {  // Only draw name if cell is big enough
+    if (size > 20) {
         ctx.save();
         
-        // Calculate font size based on cell size
         const fontSize = Math.max(12, Math.min(20, size / 2));
         ctx.font = `bold ${fontSize}px Arial`;
         ctx.fillStyle = 'white';
@@ -51,27 +59,23 @@ function drawCellWithName(x, y, score, color, name) {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        // Draw text stroke (outline)
         ctx.strokeText(name, x, y);
-        // Draw text fill
         ctx.fillText(name, x, y);
         
         ctx.restore();
     }
 }
 
-export function drawGame() {
+export function drawGame(): void {
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Update camera to follow player's center of mass
     const centerOfMass = calculateCenterOfMass(gameState.playerCells);
     gameState.camera.x = centerOfMass.x - canvas.width / 2;
     gameState.camera.y = centerOfMass.y - canvas.height / 2;
 
-    // Draw food
-    gameState.food.forEach(food => {
+    gameState.food.forEach((food: Food) => {
         const screenX = food.x - gameState.camera.x;
         const screenY = food.y - gameState.camera.y;
         
@@ -81,8 +85,7 @@ export function drawGame() {
         }
     });
 
-    // Draw AI players
-    gameState.aiPlayers.forEach(ai => {
+    gameState.aiPlayers.forEach((ai: AIPlayer) => {
         const screenX = ai.x - gameState.camera.x;
         const screenY = ai.y - gameState.camera.y;
         const size = getSize(ai.score);
@@ -93,8 +96,7 @@ export function drawGame() {
         }
     });
 
-    // Draw player cells
-    gameState.playerCells.forEach(cell => {
+    gameState.playerCells.forEach((cell: PlayerCell) => {
         const screenX = cell.x - gameState.camera.x;
         const screenY = cell.y - gameState.camera.y;
         const size = getSize(cell.score);
@@ -105,11 +107,10 @@ export function drawGame() {
         }
     });
 
-    // Update score display
     scoreElement.textContent = `Score: ${Math.floor(gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0))}`;
 }
 
-export function drawMinimap() {
+export function drawMinimap(): void {
     if (!minimapCtx) return;
 
     const MINIMAP_SIZE = 150;
@@ -125,8 +126,7 @@ export function drawMinimap() {
     minimapCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
     minimapCtx.strokeRect(viewX, viewY, viewWidth, viewHeight);
 
-    // Draw AI players on minimap
-    gameState.aiPlayers.forEach(ai => {
+    gameState.aiPlayers.forEach((ai: AIPlayer) => {
         minimapCtx.beginPath();
         minimapCtx.arc(
             ai.x * scale,
@@ -139,8 +139,7 @@ export function drawMinimap() {
         minimapCtx.fill();
     });
 
-    // Draw player cells on minimap
-    gameState.playerCells.forEach(cell => {
+    gameState.playerCells.forEach((cell: PlayerCell) => {
         minimapCtx.beginPath();
         minimapCtx.arc(
             cell.x * scale,
@@ -154,19 +153,24 @@ export function drawMinimap() {
     });
 }
 
-export function updateLeaderboard() {
+interface LeaderboardPlayer {
+    name: string;
+    score: number;
+    isPlayer: boolean;
+}
+
+export function updateLeaderboard(): void {
     if (!leaderboardContent) return;
 
     const playerTotalScore = gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0);
     
-    // Combine player score with AI scores
-    const allPlayers = [
+    const allPlayers: LeaderboardPlayer[] = [
         { 
             name: gameState.playerName,
             score: playerTotalScore,
             isPlayer: true
         },
-        ...gameState.aiPlayers.map(ai => ({
+        ...gameState.aiPlayers.map((ai: AIPlayer): LeaderboardPlayer => ({
             name: ai.name,
             score: ai.score,
             isPlayer: false
@@ -177,7 +181,7 @@ export function updateLeaderboard() {
     
     leaderboardContent.innerHTML = allPlayers
         .slice(0, 5)
-        .map((player, index) => `
+        .map((player: LeaderboardPlayer, index: number) => `
             <div class="leaderboard-item">
                 <span class="${player.isPlayer ? 'player-name' : ''}">${index + 1}. ${player.name}</span>
                 <span>${Math.floor(player.score)}</span>
