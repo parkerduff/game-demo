@@ -1,8 +1,8 @@
 import { handleFoodCollisions, handlePlayerAICollisions, handleAIAICollisions } from '../collisions.js';
 import { gameState } from '../gameState.js';
 import { getSize } from '../utils.js';
+import type { PlayerCell, AIPlayer, FoodItem } from '../types.js';
 
-// Mock gameState
 jest.mock('../gameState.js', () => ({
   gameState: {
     playerCells: [],
@@ -13,24 +13,23 @@ jest.mock('../gameState.js', () => ({
 
 describe('handleFoodCollisions', () => {
   beforeEach(() => {
-    // Reset gameState before each test
     gameState.playerCells = [];
     gameState.food = [];
   });
 
   test('player cell consumes food when overlapping', () => {
-    gameState.playerCells = [{ x: 100, y: 100, score: 100 }];
-    gameState.food = [{ x: 100, y: 100 }];
+    gameState.playerCells = [{ x: 100, y: 100, score: 100, velocityX: 0, velocityY: 0 }];
+    gameState.food = [{ x: 100, y: 100, color: 'red' }];
 
     handleFoodCollisions();
 
     expect(gameState.food.length).toBe(0);
-    expect(gameState.playerCells[0].score).toBe(110);  // Initial + FOOD_SCORE
+    expect(gameState.playerCells[0].score).toBe(110);
   });
 
   test('food remains when not overlapping with player', () => {
-    gameState.playerCells = [{ x: 100, y: 100, score: 100 }];
-    gameState.food = [{ x: 500, y: 500 }];
+    gameState.playerCells = [{ x: 100, y: 100, score: 100, velocityX: 0, velocityY: 0 }];
+    gameState.food = [{ x: 500, y: 500, color: 'red' }];
 
     handleFoodCollisions();
 
@@ -46,8 +45,8 @@ describe('handlePlayerAICollisions', () => {
   });
 
   test('larger player cell consumes AI', () => {
-    const playerCell = { x: 100, y: 100, score: 400 };  // Large player
-    const ai = { x: 100, y: 100, score: 100 };  // Small AI
+    const playerCell: PlayerCell = { x: 100, y: 100, score: 400, velocityX: 0, velocityY: 0 };
+    const ai: AIPlayer = { x: 100, y: 100, score: 100, color: 'blue', direction: 0, name: 'TestAI' };
 
     gameState.playerCells = [playerCell];
     gameState.aiPlayers = [ai];
@@ -55,20 +54,20 @@ describe('handlePlayerAICollisions', () => {
     handlePlayerAICollisions();
 
     expect(gameState.aiPlayers.length).toBe(0);
-    expect(gameState.playerCells[0].score).toBe(600);  // 400 + 100 + 100 bonus
+    expect(gameState.playerCells[0].score).toBe(600);
   });
 
   test('larger AI consumes player cell', () => {
-    const playerCell = { x: 100, y: 100, score: 100 };  // Small player
-    const ai = { x: 100, y: 100, score: 400 };  // Large AI
+    const playerCell: PlayerCell = { x: 100, y: 100, score: 100, velocityX: 0, velocityY: 0 };
+    const ai: AIPlayer = { x: 100, y: 100, score: 400, color: 'blue', direction: 0, name: 'TestAI' };
 
     gameState.playerCells = [playerCell];
     gameState.aiPlayers = [ai];
 
     handlePlayerAICollisions();
 
-    expect(gameState.playerCells.length).toBe(1);  // Player respawns
-    expect(gameState.aiPlayers[0].score).toBe(600);  // 400 + 100 + 100 bonus
+    expect(gameState.playerCells.length).toBe(1);
+    expect(gameState.aiPlayers[0].score).toBe(600);
   });
 });
 
@@ -78,20 +77,20 @@ describe('handleAIAICollisions', () => {
   });
 
   test('larger AI consumes smaller AI', () => {
-    const ai1 = { x: 100, y: 100, score: 400 };  // Large AI
-    const ai2 = { x: 100, y: 100, score: 100 };  // Small AI
+    const ai1: AIPlayer = { x: 100, y: 100, score: 400, color: 'blue', direction: 0, name: 'TestAI1' };
+    const ai2: AIPlayer = { x: 100, y: 100, score: 100, color: 'red', direction: 0, name: 'TestAI2' };
 
     gameState.aiPlayers = [ai1, ai2];
 
     handleAIAICollisions();
 
     expect(gameState.aiPlayers.length).toBe(1);
-    expect(gameState.aiPlayers[0].score).toBe(600);  // 400 + 100 + 100 bonus
+    expect(gameState.aiPlayers[0].score).toBe(600);
   });
 
   test('equal sized AIs do not consume each other', () => {
-    const ai1 = { x: 100, y: 100, score: 100 };
-    const ai2 = { x: 100, y: 100, score: 100 };
+    const ai1: AIPlayer = { x: 100, y: 100, score: 100, color: 'blue', direction: 0, name: 'TestAI1' };
+    const ai2: AIPlayer = { x: 100, y: 100, score: 100, color: 'red', direction: 0, name: 'TestAI2' };
 
     gameState.aiPlayers = [ai1, ai2];
 
