@@ -2,7 +2,6 @@ import { handleFoodCollisions, handlePlayerAICollisions, handleAIAICollisions } 
 import { gameState } from '../gameState.js';
 import { getSize } from '../utils.js';
 
-// Mock gameState
 jest.mock('../gameState.js', () => ({
   gameState: {
     playerCells: [],
@@ -13,14 +12,13 @@ jest.mock('../gameState.js', () => ({
 
 describe('handleFoodCollisions', () => {
   beforeEach(() => {
-    // Reset gameState before each test
     gameState.playerCells = [];
     gameState.food = [];
   });
 
   test('player cell consumes food when overlapping', () => {
-    gameState.playerCells = [{ x: 100, y: 100, score: 100 }];
-    gameState.food = [{ x: 100, y: 100 }];
+    gameState.playerCells = [{ x: 100, y: 100, score: 100, velocityX: 0, velocityY: 0 }];
+    gameState.food = [{ x: 100, y: 100, color: '#fff' }];
 
     handleFoodCollisions();
 
@@ -29,8 +27,8 @@ describe('handleFoodCollisions', () => {
   });
 
   test('food remains when not overlapping with player', () => {
-    gameState.playerCells = [{ x: 100, y: 100, score: 100 }];
-    gameState.food = [{ x: 500, y: 500 }];
+    gameState.playerCells = [{ x: 100, y: 100, score: 100, velocityX: 0, velocityY: 0 }];
+    gameState.food = [{ x: 500, y: 500, color: '#fff' }];
 
     handleFoodCollisions();
 
@@ -46,8 +44,8 @@ describe('handlePlayerAICollisions', () => {
   });
 
   test('larger player cell consumes AI', () => {
-    const playerCell = { x: 100, y: 100, score: 400 };  // Large player
-    const ai = { x: 100, y: 100, score: 100 };  // Small AI
+    const playerCell = { x: 100, y: 100, score: 400, velocityX: 0, velocityY: 0 };  // Large player
+    const ai = { x: 100, y: 100, score: 100, name: 'TestAI', color: '#fff', direction: 0 };  // Small AI
 
     gameState.playerCells = [playerCell];
     gameState.aiPlayers = [ai];
@@ -59,8 +57,8 @@ describe('handlePlayerAICollisions', () => {
   });
 
   test('larger AI consumes player cell', () => {
-    const playerCell = { x: 100, y: 100, score: 100 };  // Small player
-    const ai = { x: 100, y: 100, score: 400 };  // Large AI
+    const playerCell = { x: 100, y: 100, score: 100, velocityX: 0, velocityY: 0 };  // Small player
+    const ai = { x: 100, y: 100, score: 400, name: 'TestAI', color: '#fff', direction: 0 };  // Large AI
 
     gameState.playerCells = [playerCell];
     gameState.aiPlayers = [ai];
@@ -78,8 +76,8 @@ describe('handleAIAICollisions', () => {
   });
 
   test('larger AI consumes smaller AI', () => {
-    const ai1 = { x: 100, y: 100, score: 400 };  // Large AI
-    const ai2 = { x: 100, y: 100, score: 100 };  // Small AI
+    const ai1 = { x: 100, y: 100, score: 400, name: 'TestAI1', color: '#fff', direction: 0 };  // Large AI
+    const ai2 = { x: 100, y: 100, score: 100, name: 'TestAI2', color: '#fff', direction: 0 };  // Small AI
 
     gameState.aiPlayers = [ai1, ai2];
 
@@ -90,8 +88,8 @@ describe('handleAIAICollisions', () => {
   });
 
   test('equal sized AIs do not consume each other', () => {
-    const ai1 = { x: 100, y: 100, score: 100 };
-    const ai2 = { x: 100, y: 100, score: 100 };
+    const ai1 = { x: 100, y: 100, score: 100, name: 'TestAI1', color: '#fff', direction: 0 };
+    const ai2 = { x: 100, y: 100, score: 100, name: 'TestAI2', color: '#fff', direction: 0 };
 
     gameState.aiPlayers = [ai1, ai2];
 

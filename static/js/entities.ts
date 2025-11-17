@@ -1,4 +1,4 @@
-import { gameState, mouse } from './gameState.js';
+import { gameState, mouse, PlayerCell, AIPlayer } from './gameState.js';
 import { getSize, getRandomPosition, calculateCenterOfMass, getDistance } from './utils.js';
 import { 
     WORLD_SIZE, 
@@ -14,7 +14,7 @@ import {
     MERGE_START_FORCE
 } from './config.js';
 
-const AI_NAMES = [
+const AI_NAMES: string[] = [
     'Cursor',
     'Zed',
     'VSCode',
@@ -27,27 +27,23 @@ const AI_NAMES = [
     'Emacs'
 ];
 
-// Function to get an unused AI name
-function getUnusedAIName() {
+function getUnusedAIName(): string {
     const usedNames = new Set(gameState.aiPlayers.map(ai => ai.name));
     return AI_NAMES.find(name => !usedNames.has(name)) || AI_NAMES[0];
 }
 
-function updateCellMerging() {
+function updateCellMerging(): void {
     const now = Date.now();
-    const cellsToMerge = [];
+    const cellsToMerge: number[] = [];
 
-    // First pass: calculate merging forces and identify mergeable cells
     for (let i = 0; i < gameState.playerCells.length; i++) {
         const cell1 = gameState.playerCells[i];
         
-        // Skip if cell is already marked for merging
         if (cellsToMerge.includes(i)) continue;
 
         for (let j = i + 1; j < gameState.playerCells.length; j++) {
             const cell2 = gameState.playerCells[j];
             
-            // Skip if cell is already marked for merging
             if (cellsToMerge.includes(j)) continue;
 
             const distance = getDistance(cell1, cell2);
@@ -56,17 +52,14 @@ function updateCellMerging() {
             const minMergeDistance = (cell1Size + cell2Size) * MERGE_DISTANCE;
             const minDistance = cell1Size + cell2Size;  // Minimum distance before repulsion
 
-            // Calculate time since split
             const timeSinceSplit1 = now - (cell1.splitTime || 0);
             const timeSinceSplit2 = now - (cell2.splitTime || 0);
             const canMerge = timeSinceSplit1 > MERGE_COOLDOWN && timeSinceSplit2 > MERGE_COOLDOWN;
 
             if (distance < minMergeDistance && canMerge) {
-                // Mark cells for merging only if they're very close
                 if (distance < minDistance * 0.5) {
                     cellsToMerge.push(i, j);
                 } else {
-                    // Strong attraction force when close to merging
                     const dx = cell2.x - cell1.x;
                     const dy = cell2.y - cell1.y;
                     const force = MERGE_FORCE;
@@ -78,21 +71,18 @@ function updateCellMerging() {
                     cell2.velocityY -= dy * factor;
                 }
             } else {
-                // Calculate repulsion when too close
                 if (distance < minDistance) {
                     const repulsionStrength = 0.3;  // Adjust this to control repulsion strength
                     const repulsionFactor = (minDistance - distance) / minDistance * repulsionStrength;
                     const dx = cell2.x - cell1.x;
                     const dy = cell2.y - cell1.y;
                     
-                    // Apply repulsion
                     cell1.velocityX -= dx * repulsionFactor;
                     cell1.velocityY -= dy * repulsionFactor;
                     cell2.velocityX += dx * repulsionFactor;
                     cell2.velocityY += dy * repulsionFactor;
                 }
                 
-                // Apply attraction force if not too close
                 if (distance > minDistance) {
                     const dx = cell2.x - cell1.x;
                     const dy = cell2.y - cell1.y;
@@ -108,16 +98,12 @@ function updateCellMerging() {
         }
     }
 
-    // Second pass: merge cells
     if (cellsToMerge.length > 0) {
-        // Sort indices in descending order to remove from end first
         cellsToMerge.sort((a, b) => b - a);
         
-        // Get unique indices
         const uniqueIndices = [...new Set(cellsToMerge)];
         
-        // Group cells to merge
-        const groups = [];
+        const groups: number[][] = [];
         let currentGroup = [uniqueIndices[0]];
         
         for (let i = 1; i < uniqueIndices.length; i++) {
@@ -133,25 +119,20 @@ function updateCellMerging() {
         }
         groups.push(currentGroup);
 
-        // Merge each group
         groups.forEach(group => {
             const cells = group.map(index => gameState.playerCells[index]);
             
-            // Calculate total score and weighted position
             const totalScore = cells.reduce((sum, cell) => sum + cell.score, 0);
             const weightedX = cells.reduce((sum, cell) => sum + cell.x * cell.score, 0) / totalScore;
             const weightedY = cells.reduce((sum, cell) => sum + cell.y * cell.score, 0) / totalScore;
             
-            // Calculate average velocity weighted by mass
             const avgVelocityX = cells.reduce((sum, cell) => sum + cell.velocityX * cell.score, 0) / totalScore;
             const avgVelocityY = cells.reduce((sum, cell) => sum + cell.velocityY * cell.score, 0) / totalScore;
 
-            // Remove old cells (in reverse order to maintain correct indices)
             group.sort((a, b) => b - a).forEach(index => {
                 gameState.playerCells.splice(index, 1);
             });
 
-            // Add merged cell with combined score
             gameState.playerCells.push({
                 x: weightedX,
                 y: weightedY,
@@ -164,7 +145,7 @@ function updateCellMerging() {
     }
 }
 
-export function updatePlayer() {
+export function updatePlayer(): void {
     const dx = mouse.x - window.innerWidth / 2;
     const dy = mouse.y - window.innerHeight / 2;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -175,32 +156,26 @@ export function updatePlayer() {
             y: dy / distance
         };
 
-        // Update each cell
         gameState.playerCells.forEach(cell => {
-            // Base speed is inversely proportional to cell size
             const speed = 5 / (getSize(cell.score) / 20);
 
-            // Update velocity (with inertia)
             cell.velocityX = cell.velocityX * 0.9 + direction.x * speed * 0.1;
             cell.velocityY = cell.velocityY * 0.9 + direction.y * speed * 0.1;
 
-            // Update position
             cell.x = Math.max(0, Math.min(WORLD_SIZE, cell.x + cell.velocityX));
             cell.y = Math.max(0, Math.min(WORLD_SIZE, cell.y + cell.velocityY));
         });
     }
 
-    // Handle cell merging
     updateCellMerging();
 }
 
-export function splitPlayerCell(cell) {
+export function splitPlayerCell(cell: PlayerCell): void {
     if (cell.score < MIN_SPLIT_SCORE || 
         gameState.playerCells.length >= MAX_PLAYER_CELLS) {
         return;
     }
 
-    // Calculate split direction (towards mouse)
     const dx = mouse.x - window.innerWidth / 2;
     const dy = mouse.y - window.innerHeight / 2;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -214,8 +189,7 @@ export function splitPlayerCell(cell) {
 
     const now = Date.now();
 
-    // Create new cell
-    const newCell = {
+    const newCell: PlayerCell = {
         x: cell.x,
         y: cell.y,
         score: cell.score / 2,
@@ -224,18 +198,15 @@ export function splitPlayerCell(cell) {
         splitTime: now
     };
 
-    // Update original cell
     cell.score /= 2;
     cell.velocityX = -direction.x * SPLIT_VELOCITY * 0.5;
     cell.velocityY = -direction.y * SPLIT_VELOCITY * 0.5;
     cell.splitTime = now;
 
-    // Add new cell
     gameState.playerCells.push(newCell);
 }
 
-export function handlePlayerSplit() {
-    // Split each cell that's large enough
+export function handlePlayerSplit(): void {
     const cellsToSplit = gameState.playerCells.filter(cell => 
         cell.score >= MIN_SPLIT_SCORE && 
         gameState.playerCells.length < MAX_PLAYER_CELLS
@@ -244,7 +215,7 @@ export function handlePlayerSplit() {
     cellsToSplit.forEach(cell => splitPlayerCell(cell));
 }
 
-export function updateAI() {
+export function updateAI(): void {
     gameState.aiPlayers.forEach(ai => {
         if (Math.random() < 0.02) {
             ai.direction = Math.random() * Math.PI * 2;
@@ -259,14 +230,12 @@ export function updateAI() {
     });
 }
 
-export function initEntities() {
-    // Clear existing entities
+export function initEntities(): void {
     gameState.food = [];
     gameState.aiPlayers = [];
     
     console.log('Initializing entities...');
 
-    // Initialize food
     for (let i = 0; i < FOOD_COUNT; i++) {
         const pos = getRandomPosition();
         gameState.food.push({
@@ -276,10 +245,9 @@ export function initEntities() {
         });
     }
 
-    // Initialize AI players
     for (let i = 0; i < AI_COUNT; i++) {
         const pos = getRandomPosition();
-        const ai = {
+        const ai: AIPlayer = {
             x: pos.x,
             y: pos.y,
             score: AI_STARTING_SCORE,
@@ -297,8 +265,7 @@ export function initEntities() {
     });
 }
 
-// Export for use in other modules
-export function respawnAI() {
+export function respawnAI(): AIPlayer {
     const pos = getRandomPosition();
     const name = getUnusedAIName();
     

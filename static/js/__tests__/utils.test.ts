@@ -41,19 +41,19 @@ describe('getDistance', () => {
 
 describe('calculateCenterOfMass', () => {
   test('returns center for single cell', () => {
-    const cells = [{ x: 10, y: 20, score: 100 }];
+    const cells = [{ x: 10, y: 20, score: 100, velocityX: 0, velocityY: 0 }];
     const center = calculateCenterOfMass(cells);
     expect(center).toEqual({ x: 10, y: 20 });
   });
 
   test('returns weighted center for multiple cells', () => {
     const cells = [
-      { x: 0, y: 0, score: 100 },
-      { x: 10, y: 10, score: 300 }
+      { x: 0, y: 0, score: 100, velocityX: 0, velocityY: 0 },
+      { x: 10, y: 10, score: 300, velocityX: 0, velocityY: 0 }
     ];
     const center = calculateCenterOfMass(cells);
-    expect(center.x).toBeCloseTo(5);
-    expect(center.y).toBeCloseTo(5);
+    expect(center.x).toBeCloseTo(7.5);
+    expect(center.y).toBeCloseTo(7.5);
   });
 
   test('returns {x: 0, y: 0} for empty cells array', () => {
@@ -62,8 +62,8 @@ describe('calculateCenterOfMass', () => {
 
   test('returns {x: 0, y: 0} for cells with zero total score', () => {
     const cells = [
-      { x: 10, y: 20, score: 0 },
-      { x: 30, y: 40, score: 0 }
+      { x: 10, y: 20, score: 0, velocityX: 0, velocityY: 0 },
+      { x: 30, y: 40, score: 0, velocityX: 0, velocityY: 0 }
     ];
     expect(calculateCenterOfMass(cells)).toEqual({ x: 0, y: 0 });
   });
