@@ -4,7 +4,9 @@
   "description": "Agar.io clone game",
   "main": "app.py",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",

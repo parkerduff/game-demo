@@ -1,9 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 import numpy as np
 import json
-import mimetypes
-
-mimetypes.add_type('application/javascript', '.ts')
+import os
 
 app = Flask(__name__)
 
@@ -28,4 +26,5 @@ def update_player():
     return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    debug = os.environ.get('FLASK_DEBUG') == '1'
+    app.run(debug=debug)

@@ -10,14 +10,13 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "noEmit": true,
     "types": ["jest"]
   },
   "include": [
-    "static/js/**/*.ts",
-    "static/js/**/*.js"
+    "static/js/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "static/js/__tests__"
   ]
 }
