@@ -1,6 +1,9 @@
 from flask import Flask, render_template, jsonify, request
 import numpy as np
 import json
+import mimetypes
+
+mimetypes.add_type('application/javascript', '.ts')
 
 app = Flask(__name__)
 
