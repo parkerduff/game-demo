@@ -1,9 +1,9 @@
 import { handleFoodCollisions, handlePlayerAICollisions, handleAIAICollisions } from '../collisions.js';
-import { gameState } from '../gameState.js';
-import { getSize } from '../utils.js';
+import { gameState } from '../gameState.ts';
+import { getSize } from '../utils.ts';
 
 // Mock gameState
-jest.mock('../gameState.js', () => ({
+jest.mock('../gameState.ts', () => ({
   gameState: {
     playerCells: [],
     aiPlayers: [],

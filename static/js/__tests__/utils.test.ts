@@ -1,4 +1,13 @@
-import { getSize, getDistance, calculateCenterOfMass } from '../utils.js';
+import { getSize, getDistance, calculateCenterOfMass } from '../utils.ts';
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface CellWithScore extends Position {
+  score: number;
+}
 
 describe('getSize', () => {
   test('returns correct size for score 0', () => {
@@ -16,42 +25,42 @@ describe('getSize', () => {
 
 describe('getDistance', () => {
   test('returns 0 for same point', () => {
-    const point = { x: 10, y: 10 };
+    const point: Position = { x: 10, y: 10 };
     expect(getDistance(point, point)).toBe(0);
   });
 
   test('returns correct horizontal distance', () => {
-    const point1 = { x: 0, y: 0 };
-    const point2 = { x: 3, y: 0 };
+    const point1: Position = { x: 0, y: 0 };
+    const point2: Position = { x: 3, y: 0 };
     expect(getDistance(point1, point2)).toBe(3);
   });
 
   test('returns correct vertical distance', () => {
-    const point1 = { x: 0, y: 0 };
-    const point2 = { x: 0, y: 4 };
+    const point1: Position = { x: 0, y: 0 };
+    const point2: Position = { x: 0, y: 4 };
     expect(getDistance(point1, point2)).toBe(4);
   });
 
   test('returns correct diagonal distance', () => {
-    const point1 = { x: 0, y: 0 };
-    const point2 = { x: 3, y: 4 };
+    const point1: Position = { x: 0, y: 0 };
+    const point2: Position = { x: 3, y: 4 };
     expect(getDistance(point1, point2)).toBe(5);  // 3-4-5 triangle
   });
 });
 
 describe('calculateCenterOfMass', () => {
   test('returns center for single cell', () => {
-    const cells = [{ x: 10, y: 20, score: 100 }];
-    const center = calculateCenterOfMass(cells);
+    const cells: CellWithScore[] = [{ x: 10, y: 20, score: 100 }];
+    const center: Position = calculateCenterOfMass(cells);
     expect(center).toEqual({ x: 10, y: 20 });
   });
 
   test('returns weighted center for multiple cells', () => {
-    const cells = [
+    const cells: CellWithScore[] = [
       { x: 0, y: 0, score: 100 },
       { x: 10, y: 10, score: 300 }
     ];
-    const center = calculateCenterOfMass(cells);
+    const center: Position = calculateCenterOfMass(cells);
     expect(center.x).toBeCloseTo(5);
     expect(center.y).toBeCloseTo(5);
   });
@@ -61,7 +70,7 @@ describe('calculateCenterOfMass', () => {
   });
 
   test('returns {x: 0, y: 0} for cells with zero total score', () => {
-    const cells = [
+    const cells: CellWithScore[] = [
       { x: 10, y: 20, score: 0 },
       { x: 30, y: 40, score: 0 }
     ];
