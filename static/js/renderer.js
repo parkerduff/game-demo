@@ -1,6 +1,6 @@
-import { gameState } from './gameState.js';
-import { getSize, calculateCenterOfMass } from './utils.js';
-import { WORLD_SIZE, COLORS, FOOD_SIZE } from './config.js';
+import { gameState } from './gameState.ts';
+import { getSize, calculateCenterOfMass } from './utils.ts';
+import { WORLD_SIZE, COLORS, FOOD_SIZE } from './config.ts';
 
 let canvas, ctx, minimapCanvas, minimapCtx, scoreElement, leaderboardContent;
 
