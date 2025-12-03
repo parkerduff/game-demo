@@ -272,7 +272,7 @@ export function initEntities() {
         gameState.food.push({
             x: pos.x,
             y: pos.y,
-            color: `hsl(${Math.random() * 360}, 50%, 50%)`
+            color: `hsl(0, 0%, ${30 + Math.random() * 40}%)`
         });
     }
 
@@ -283,7 +283,7 @@ export function initEntities() {
             x: pos.x,
             y: pos.y,
             score: AI_STARTING_SCORE,
-            color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+            color: `hsl(0, 0%, ${30 + Math.random() * 40}%)`,
             direction: Math.random() * Math.PI * 2,
             name: getUnusedAIName()
         };
@@ -306,7 +306,7 @@ export function respawnAI() {
         x: pos.x,
         y: pos.y,
         score: AI_STARTING_SCORE,
-        color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+        color: `hsl(0, 0%, ${30 + Math.random() * 40}%)`,
         direction: Math.random() * Math.PI * 2,
         name: name
     };

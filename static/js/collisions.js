@@ -150,7 +150,7 @@ export function respawnEntities() {
         gameState.food.push({
             x: pos.x,
             y: pos.y,
-            color: `hsl(${Math.random() * 360}, 50%, 50%)`
+            color: `hsl(0, 0%, ${30 + Math.random() * 40}%)`
         });
     }
 
