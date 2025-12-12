@@ -28,8 +28,8 @@
             top: 10px;
             left: 10px;
             font-family: Arial, sans-serif;
-            font-size: 20px;
-            color: #333;
+            font-size: clamp(16px, 2vw, 24px);
+            color: #000;
             text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
         }
         :root[data-theme="dark"] #score {
@@ -41,7 +41,7 @@
             top: 10px;
             right: 10px;
             font-family: Arial, sans-serif;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.85);
             color: white;
             padding: 10px;
             border-radius: 5px;
@@ -56,7 +56,7 @@
             display: flex;
             justify-content: space-between;
             margin: 5px 0;
-            font-size: 14px;
+            font-size: clamp(12px, 1.5vw, 16px);
         }
         .player-name {
             color: #4CAF50;
@@ -82,6 +82,8 @@
             align-items: center;
             justify-content: center;
             transition: background-color 0.3s;
+            border: none;
+            padding: 0;
         }
         #settings-icon:hover {
             background-color: rgba(0, 0, 0, 0.9);
@@ -202,21 +204,29 @@
         input:checked + .toggle-slider:before {
             transform: translateX(20px);
         }
+
+        /* Focus indicators for accessibility */
+        #settings-icon:focus,
+        .button:focus,
+        .toggle-switch input:focus + .toggle-slider {
+            outline: 3px solid #4CAF50;
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" role="application" aria-label="Game area"></canvas>
     <div id="score">Score: 0</div>
-    <div id="leaderboard">
+    <div id="leaderboard" role="region" aria-label="Top 5 players">
         <h3>Leaderboard</h3>
         <div id="leaderboard-content"></div>
     </div>
     <canvas id="minimap" width="150" height="150"></canvas>
-    <div id="settings-icon">
+    <button id="settings-icon" aria-label="Game settings" aria-expanded="false" tabindex="0">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
         </svg>
-    </div>
+    </button>
     <div id="settings-panel">
         <h2>Game Controls</h2>
         <div class="control-group">
@@ -242,6 +252,13 @@
                     <span class="toggle-slider"></span>
                 </label>
             </div>
+            <div class="control-item">
+                <span>High Contrast</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="high-contrast-toggle" onclick="toggleHighContrast()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
         </div>
         <div class="control-group">
             <h3>General</h3>
@@ -254,6 +271,10 @@
     <script>
         function toggleDarkMode() {
             document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? '' : 'dark');
+        }
+        function toggleHighContrast() {
+            const isHighContrast = localStorage.getItem('highContrast') === 'true';
+            localStorage.setItem('highContrast', !isHighContrast);
         }
     </script>
     <script type="module" src="{{ url_for('static', filename='js/game.js') }}"></script>

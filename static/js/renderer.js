@@ -50,6 +50,14 @@ function drawCellWithName(x, y, score, color, name) {
         ctx.lineWidth = 3;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
+
+        // High contrast mode support
+        const isHighContrast = localStorage.getItem('highContrast') === 'true';
+        if (isHighContrast) {
+            ctx.fillStyle = '#000000';
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 4;
+        }
         
         // Draw text stroke (outline)
         ctx.strokeText(name, x, y);
