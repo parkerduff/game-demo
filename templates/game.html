@@ -164,7 +164,6 @@
 
         /* Victory Overlay */
         #victory-overlay {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -172,6 +171,7 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.75);
             z-index: 1000;
+            display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
@@ -179,11 +179,15 @@
             color: white;
             text-align: center;
             opacity: 0;
-            transition: opacity 0.8s ease-in;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.8s ease-in, visibility 0s 0.8s;
         }
         #victory-overlay.visible {
-            display: flex;
             opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.8s ease-in, visibility 0s 0s;
         }
         #victory-overlay h1 {
             font-size: 72px;
