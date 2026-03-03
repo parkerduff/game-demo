@@ -6,6 +6,7 @@ export const FOOD_SCORE = 10;
 export const FOOD_COUNT = 100;
 export const AI_COUNT = 10;
 export const COLLISION_THRESHOLD = 1.1; // 10% size difference needed for consumption
+export const VICTORY_SCORE = 5000; // Score at which the player wins the game
 
 // Split mechanics
 export const MIN_SPLIT_SCORE = 40;  // Minimum score needed to split
