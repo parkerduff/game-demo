@@ -3,6 +3,7 @@ import { initRenderer, resizeCanvas, drawGame, drawMinimap, updateLeaderboard } 
 import { updatePlayer, updateAI, initEntities, handlePlayerSplit } from './entities.js';
 import { handleFoodCollisions, handlePlayerAICollisions, handleAIAICollisions, respawnEntities } from './collisions.js';
 import { initUI } from './ui.js';
+import { VICTORY_SCORE } from './config.js';
 
 function setupInputHandlers() {
     const canvas = document.getElementById('gameCanvas');
@@ -48,10 +49,34 @@ function verifyGameState() {
     }
 }
 
+function checkVictory() {
+    const totalScore = gameState.playerCells.reduce((sum, cell) => sum + cell.score, 0);
+    if (totalScore >= VICTORY_SCORE && !gameState.gameWon) {
+        gameState.gameWon = true;
+        showVictoryScreen(Math.floor(totalScore));
+    }
+}
+
+function showVictoryScreen(finalScore) {
+    const overlay = document.getElementById('victory-overlay');
+    const scoreDisplay = document.getElementById('victory-score');
+    if (overlay && scoreDisplay) {
+        scoreDisplay.textContent = finalScore;
+        overlay.classList.add('visible');
+    }
+}
+
 function gameLoop() {
+    if (gameState.gameWon) {
+        // Keep drawing but stop updating game logic
+        drawGame();
+        drawMinimap();
+        return;
+    }
     updatePlayer();
     updateAI();
     checkCollisions();
+    checkVictory();
     updateLeaderboard();
     drawGame();
     drawMinimap();
