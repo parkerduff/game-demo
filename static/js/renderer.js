@@ -21,10 +21,21 @@ export function resizeCanvas() {
     canvas.height = window.innerHeight;
 }
 
+function drawOctagon(context, x, y, radius) {
+    context.beginPath();
+    for (let i = 0; i < 8; i++) {
+        const angle = (Math.PI / 4) * i - Math.PI / 8;
+        const px = x + radius * Math.cos(angle);
+        const py = y + radius * Math.sin(angle);
+        if (i === 0) context.moveTo(px, py);
+        else context.lineTo(px, py);
+    }
+    context.closePath();
+}
+
 function drawCircle(x, y, value, color, isFood) {
     const size = isFood ? value : getSize(value);
-    ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
+    drawOctagon(ctx, x, y, size);
     ctx.fillStyle = color;
     ctx.fill();
 }
@@ -33,8 +44,7 @@ function drawCellWithName(x, y, score, color, name) {
     const size = getSize(score);
     
     // Draw cell
-    ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
+    drawOctagon(ctx, x, y, size);
     ctx.fillStyle = color;
     ctx.fill();
 
@@ -127,28 +137,14 @@ export function drawMinimap() {
 
     // Draw AI players on minimap
     gameState.aiPlayers.forEach(ai => {
-        minimapCtx.beginPath();
-        minimapCtx.arc(
-            ai.x * scale,
-            ai.y * scale,
-            2,
-            0,
-            Math.PI * 2
-        );
+        drawOctagon(minimapCtx, ai.x * scale, ai.y * scale, 2);
         minimapCtx.fillStyle = COLORS.MINIMAP.OTHER;
         minimapCtx.fill();
     });
 
     // Draw player cells on minimap
     gameState.playerCells.forEach(cell => {
-        minimapCtx.beginPath();
-        minimapCtx.arc(
-            cell.x * scale,
-            cell.y * scale,
-            3,
-            0,
-            Math.PI * 2
-        );
+        drawOctagon(minimapCtx, cell.x * scale, cell.y * scale, 3);
         minimapCtx.fillStyle = COLORS.MINIMAP.PLAYER;
         minimapCtx.fill();
     });

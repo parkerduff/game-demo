@@ -20,10 +20,10 @@ export const MERGE_FORCE = 0.3;       // Strength of the merging force
 export const MERGE_START_FORCE = 0.1; // Initial attraction force (before merge cooldown)
 
 export const COLORS = {
-    PLAYER: '#008080',  // Teal color
+    PLAYER: '#00FFFF',  // Cyan color
     MINIMAP: {
-        PLAYER: '#4CAF50',
-        TOP_PLAYER: '#FFC107',
+        PLAYER: '#00FFFF',
+        TOP_PLAYER: '#FF8C00',
         OTHER: 'rgba(255, 255, 255, 0.3)'
     }
 };
