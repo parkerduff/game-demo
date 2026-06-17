@@ -21,12 +21,35 @@ export function resizeCanvas() {
     canvas.height = window.innerHeight;
 }
 
-function drawCircle(x, y, value, color, isFood) {
-    const size = isFood ? value : getSize(value);
+function drawStar(x, y, radius, points, color) {
+    const innerRadius = radius * 0.4;
     ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
+    for (let i = 0; i < points * 2; i++) {
+        const r = i % 2 === 0 ? radius : innerRadius;
+        const angle = (Math.PI * i) / points - Math.PI / 2;
+        const px = x + r * Math.cos(angle);
+        const py = y + r * Math.sin(angle);
+        if (i === 0) {
+            ctx.moveTo(px, py);
+        } else {
+            ctx.lineTo(px, py);
+        }
+    }
+    ctx.closePath();
     ctx.fillStyle = color;
     ctx.fill();
+}
+
+function drawCircle(x, y, value, color, isFood) {
+    const size = isFood ? value : getSize(value);
+    if (isFood) {
+        drawStar(x, y, size, 5, color);
+    } else {
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+    }
 }
 
 function drawCellWithName(x, y, score, color, name) {
