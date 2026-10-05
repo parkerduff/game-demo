@@ -1,5 +1,5 @@
 import { gameState } from './gameState.js';
-import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation } from './utils.js';
+import { getDistance, getSize, getRandomPosition, findSafeSpawnLocation, getRandomColor } from './utils.js';
 import { FOOD_SIZE, FOOD_SCORE, COLLISION_THRESHOLD, FOOD_COUNT, AI_COUNT, STARTING_SCORE, WORLD_SIZE } from './config.js';
 import { respawnAI } from './entities.js';
 
@@ -150,7 +150,7 @@ export function respawnEntities() {
         gameState.food.push({
             x: pos.x,
             y: pos.y,
-            color: `hsl(${Math.random() * 360}, 50%, 50%)`
+            color: getRandomColor()
         });
     }
 

@@ -37,6 +37,9 @@ function drawCellWithName(x, y, score, color, name) {
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = COLORS.CELL_OUTLINE;
+    ctx.stroke();
 
     // Draw name
     if (size > 20) {  // Only draw name if cell is big enough
@@ -145,7 +148,7 @@ export function drawMinimap() {
         minimapCtx.arc(
             cell.x * scale,
             cell.y * scale,
-            3,
+            4,
             0,
             Math.PI * 2
         );

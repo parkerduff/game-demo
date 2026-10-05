@@ -1,4 +1,4 @@
-import { WORLD_SIZE } from './config.js';
+import { WORLD_SIZE, COLORS } from './config.js';
 
 export function getSize(score) {
     return Math.sqrt(score) + 20;
@@ -9,6 +9,10 @@ export function getRandomPosition() {
         x: Math.random() * WORLD_SIZE,
         y: Math.random() * WORLD_SIZE
     };
+}
+
+export function getRandomColor() {
+    return COLORS.ENTITY_PALETTE[Math.floor(Math.random() * COLORS.ENTITY_PALETTE.length)];
 }
 
 export function getDistance(obj1, obj2) {
