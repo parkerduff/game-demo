@@ -1,4 +1,4 @@
-export const WORLD_SIZE = 2000;
+export const WORLD_SIZE = 8000;
 export const FOOD_SIZE = 5;
 export const STARTING_SCORE = 100;
 export const AI_STARTING_SCORE = 50;  // Starting score for AI players
@@ -19,11 +19,14 @@ export const MERGE_COOLDOWN = 10000;  // Time in ms before cells can merge
 export const MERGE_FORCE = 0.3;       // Strength of the merging force
 export const MERGE_START_FORCE = 0.1; // Initial attraction force (before merge cooldown)
 
+// Okabe-Ito colorblind-safe palette
 export const COLORS = {
-    PLAYER: '#008080',  // Teal color
+    PLAYER: '#0072B2',
+    CELL_OUTLINE: '#000000',
+    ENTITY_PALETTE: ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#D55E00', '#CC79A7'],
     MINIMAP: {
-        PLAYER: '#4CAF50',
-        TOP_PLAYER: '#FFC107',
-        OTHER: 'rgba(255, 255, 255, 0.3)'
+        PLAYER: '#56B4E9',
+        TOP_PLAYER: '#F0E442',
+        OTHER: 'rgba(255, 255, 255, 0.6)'
     }
 };

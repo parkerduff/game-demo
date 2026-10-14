@@ -1,5 +1,5 @@
 import { gameState, mouse } from './gameState.js';
-import { getSize, getRandomPosition, calculateCenterOfMass, getDistance } from './utils.js';
+import { getSize, getRandomPosition, calculateCenterOfMass, getDistance, getRandomColor } from './utils.js';
 import { 
     WORLD_SIZE, 
     FOOD_COUNT, 
@@ -272,7 +272,7 @@ export function initEntities() {
         gameState.food.push({
             x: pos.x,
             y: pos.y,
-            color: `hsl(${Math.random() * 360}, 50%, 50%)`
+            color: getRandomColor()
         });
     }
 
@@ -283,7 +283,7 @@ export function initEntities() {
             x: pos.x,
             y: pos.y,
             score: AI_STARTING_SCORE,
-            color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+            color: getRandomColor(),
             direction: Math.random() * Math.PI * 2,
             name: getUnusedAIName()
         };
@@ -306,7 +306,7 @@ export function respawnAI() {
         x: pos.x,
         y: pos.y,
         score: AI_STARTING_SCORE,
-        color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+        color: getRandomColor(),
         direction: Math.random() * Math.PI * 2,
         name: name
     };
