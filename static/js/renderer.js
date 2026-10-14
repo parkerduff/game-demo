@@ -27,6 +27,11 @@ function drawCircle(x, y, value, color, isFood) {
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
+    if (isFood) {
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = COLORS.CELL_OUTLINE;
+        ctx.stroke();
+    }
 }
 
 function drawCellWithName(x, y, score, color, name) {
